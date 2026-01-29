@@ -26,21 +26,10 @@ return new class extends Migration
             $table->string('payment_reference')->nullable()->unique();
             $table->string('mpesa_transaction_id')->nullable();
             $table->timestamps();
-        });
 
-        // Add indexes for better query performance
-        Schema::table('subscriptions', function (Blueprint $table) {
-            if (!$this->hasIndex('subscriptions', 'subscriptions_user_id_status_index')) {
-                $table->index(['user_id', 'status']);
-            }
-
-            if (!$this->hasIndex('subscriptions', 'subscriptions_status_end_date_index')) {
-                $table->index(['status', 'end_date']);
-            }
-
-            if (!$this->hasIndex('subscriptions', 'subscriptions_payment_reference_index')) {
-                $table->index('payment_reference');
-            }
+            // Add indexes for better query performance
+            $table->index(['user_id', 'status']);
+            $table->index(['status', 'end_date']);
         });
         
         Schema::enableForeignKeyConstraints();
@@ -52,17 +41,5 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('subscriptions');
-    }
-
-    /*
-     * Check if an index exists
-     */
-    private function hasIndex(string $table, string $index): bool
-    {
-        $indexes = Schema::getConnection()
-            ->getDoctrineSchemaManager()
-            ->listTableIndexes($table);
-
-        return array_key_exists($index, $indexes);
     }
 };
